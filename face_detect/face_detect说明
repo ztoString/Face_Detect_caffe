@@ -1,0 +1,18 @@
+
+LMDB:
+
+face_train_lmdb:5.2GB
+
+face_val_lmdb:1.3GB
+
+DATA:
+
+train : 585MB
+
+val : 152MB
+
+MODEL:
+
+model : 216MB
+
+均已转移至oneDrive云端
