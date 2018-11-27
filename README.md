@@ -1,22 +1,22 @@
 # Face_Detect_caffe
 Ubantu-18.04.1虚拟机下基于caffe和opencv实现人脸检测
 
-##人脸检测
-###目的：检测到人脸框
+## 人脸检测
+### 目的：检测到人脸框
 ![result.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/result.jpg)
 
-##一、准备数据
-###数据获取
+## 一、准备数据
+### 数据获取
 1.face detection benchmark -- 行业基准(数据库、论文、源码、结果)。
 2.优秀论文，通常试验阶段会介绍它所使用的数据集，公开数据集可以下载。(申请数据集的时候，最好使用学校的邮箱)
 3.论坛或者交流社区，如thinkface
 
 数据规模，越大越好：本案例40000+
-###二分类数据，第一类人脸，第二类非人脸
+### 二分类数据，第一类人脸，第二类非人脸
 人脸数据：路径/xxx.jpg      60，80，280，320
 非人脸数据：只要不是人脸都可以
 
-###IOU(Intersection of Union)：
+### IOU(Intersection of Union)：
 IOU < 0.3 : 负样本--非人脸
 IOU > 0.7 : 正样本--人脸(提高泛化能力)
 其他 ：抛弃
@@ -26,9 +26,9 @@ IOU > 0.7 : 正样本--人脸(提高泛化能力)
 
 `第一步结束，我们得到已经准备好的人脸与非人脸图像，准备生成二分类lmdb数据源`
 
-##二、制作LMDB数据源
+## 二、制作LMDB数据源
 
-###1.写两个txt文档文件：(将人脸与非人脸图像转换为txt文档保存)
+### 1.写两个txt文档文件：(将人脸与非人脸图像转换为txt文档保存)
 
 Train.txt
 0/xxx.jpg 0
@@ -38,7 +38,7 @@ Val.txt
 xxx.jpg 0
 xxx.jpg 1
 
-###2.face_lmdb.sh:
+### 2.face_lmdb.sh:
 修改数据集路径；
 ```
 EXAMPLE=/home/zt/face_detect
@@ -85,28 +85,28 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
 
 echo "Done."
 ```
-###3.执行sh face_lmdb.sh
+### 3.执行sh face_lmdb.sh
 
 `第二步结束，我们得到原始数据集的lmdb数据源，准备进行网络训练`
 
-##三、训练Alexnet网络
+## 三、训练Alexnet网络
 
-###1.配置train_val.prototxt
+### 1.配置train_val.prototxt
 开头：该文件定义的是训练和验证时候的网络模型，所以在开始的时候要定义训练集和验证集的来源。
 结尾：如果是一般的卷积网络的话，最后都使用全连接层，将feature map 转成固定长度的向量，然后输出种类的个数。所以在最后的时候，需要说明输出种类的个数。
 因为这里面包含了验证的部分，验证的时候，需要输出结果的准确率，所以需要定义准确率的输出。
 因为是训练模型，所以包括forward和backward，所以最后需要定义一个损失函数。
 
 
-###AlexNet-Styled architecture
+### AlexNet-Styled architecture
 ![AlexNet.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/AlexNet.jpg)
 
-###2.配置solver.prototxt
+### 2.配置solver.prototxt
 test_iter : 一次测试，要测试多少个batch
 最好使得test_iter * batch_size = 测试样本总个数
 base_lr: 0.001基础学习率（非常重要！）不能太大
 
-###3.执行train.sh
+### 3.执行train.sh
 ```
 /home/zt/caffe/build/tools/caffe train --solver=/home/zt/face_detect/solver.prototxt
 ```
@@ -114,8 +114,8 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 
 `第三步结束，我们得到训练结束Model,准备利用该Model进行图像测试`
 
-##四、测试
-###1.配置deploy.prototxt
+## 四、测试
+### 1.配置deploy.prototxt
 该配置文件适用于部署，也就是用于实际场景时候的配置文件
 
 与train_val.prototxt文件的区别在于：
@@ -124,7 +124,7 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 3.*中间部分：train_val.prototxt 和 deploy.prototxt中间部分一样，定义了一些卷积、激活、池化、Dropout、LRN(local response normalization)、全连接等操作。
 4.*结尾：因为只有forward，所以定义的是Softmax，也就是分类器，输出最后各类的概率值。
 
-###2.编写人脸检测代码(face_detect.py) -- 多尺度的人脸检测：
+### 2.编写人脸检测代码(face_detect.py) -- 多尺度的人脸检测：
 1.*model 转换成全卷积
 2.*多个scale
 3.*前相传播，得到特征图，概率值矩阵
@@ -136,18 +136,18 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 ![test.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/test.jpg)
 
 
-##最后，还想说一个小问题，在运行程序的时候，会发现运行过程非常慢，why?
-###因为我们在程序中做了多个scale变换，每个scale都要进行一次前向传播
+## 最后，还想说一个小问题，在运行程序的时候，会发现运行过程非常慢，why?
+### 因为我们在程序中做了多个scale变换，每个scale都要进行一次前向传播
 
-###解决方案：采取级联的网络，再加上矫正网络。
+### 解决方案：采取级联的网络，再加上矫正网络。
 推荐一篇论文：A Convolutional Neural Network Cascade for Face Detection
 
-###模型准确率影响因素：
-####模型：
+### 模型准确率影响因素：
+#### 模型：
 当模型准确率达到饱和时，可以尝试使用更深的网络结构，可以进一步提高准确率。（AlexNet --> VGG）
-####数据：（opencv/keras）
+#### 数据：（opencv/keras）
 对原始数据进行偏移、翻转、镜像变换等数据增强，增大数据量。
-####训练：
+#### 训练：
 例如 -- 当模型训练到第50000次时，得到的准确率最高，在之后的学习过程中，由于过拟合现象导致准确率下降，那么我们可以对第50000次的模型进行fine-tuning(微调)：拿到第50000次生成的模型，在train.sh文件中，指定权重参数为第50000次网络迭代的结果，然后降低solver.prototxt中的学习率。
 
 
