@@ -7,21 +7,21 @@ Ubantu-18.04.1虚拟机下基于caffe和opencv实现人脸检测
 
 ## 一、准备数据
 ### 数据获取
-1.face detection benchmark -- 行业基准(数据库、论文、源码、结果)。
-2.优秀论文，通常试验阶段会介绍它所使用的数据集，公开数据集可以下载。(申请数据集的时候，最好使用学校的邮箱)
+1.face detection benchmark -- 行业基准(数据库、论文、源码、结果)。  
+2.优秀论文，通常试验阶段会介绍它所使用的数据集，公开数据集可以下载。(申请数据集的时候，最好使用学校的邮箱)  
 3.论坛或者交流社区，如thinkface
 
 数据规模，越大越好：本案例40000+
 ### 二分类数据，第一类人脸，第二类非人脸
-人脸数据：路径/xxx.jpg      60，80，280，320
+人脸数据：路径/xxx.jpg      60，80，280，320  
 非人脸数据：只要不是人脸都可以
 
 ### IOU(Intersection of Union)：
-IOU < 0.3 : 负样本--非人脸
-IOU > 0.7 : 正样本--人脸(提高泛化能力)
-其他 ：抛弃
+IOU < 0.3 : 负样本--非人脸  
+IOU > 0.7 : 正样本--人脸(提高泛化能力)  
+其他 ：抛弃  
 
-对于正样本：裁剪操作，根据标注把人脸裁剪出来。可以用opencv工具完成制作人脸数据。要检查数据有没有问题。
+对于正样本：裁剪操作，根据标注把人脸裁剪出来。可以用opencv工具完成制作人脸数据。要检查数据有没有问题。  
 对于负样本：进行随机裁剪，通过设置IOU < 0.3认为是负样本，最好使用没有人脸数据的当作负样本。
 
 `第一步结束，我们得到已经准备好的人脸与非人脸图像，准备生成二分类lmdb数据源`
@@ -30,16 +30,16 @@ IOU > 0.7 : 正样本--人脸(提高泛化能力)
 
 ### 1.写两个txt文档文件：(将人脸与非人脸图像转换为txt文档保存)
 
-Train.txt
-0/xxx.jpg 0
-1/xxx.jpg 1
+Train.txt  
+0/xxx.jpg 0  
+1/xxx.jpg 1  
 
-Val.txt
-xxx.jpg 0
-xxx.jpg 1
+Val.txt  
+xxx.jpg 0  
+xxx.jpg 1  
 
 ### 2.face_lmdb.sh:
-修改数据集路径；
+修改数据集路径；  
 ```
 EXAMPLE=/home/zt/face_detect
 DATA=/home/zt/face_detect
@@ -92,18 +92,18 @@ echo "Done."
 ## 三、训练Alexnet网络
 
 ### 1.配置train_val.prototxt
-开头：该文件定义的是训练和验证时候的网络模型，所以在开始的时候要定义训练集和验证集的来源。
-结尾：如果是一般的卷积网络的话，最后都使用全连接层，将feature map 转成固定长度的向量，然后输出种类的个数。所以在最后的时候，需要说明输出种类的个数。
-因为这里面包含了验证的部分，验证的时候，需要输出结果的准确率，所以需要定义准确率的输出。
-因为是训练模型，所以包括forward和backward，所以最后需要定义一个损失函数。
+开头：该文件定义的是训练和验证时候的网络模型，所以在开始的时候要定义训练集和验证集的来源。  
+结尾：如果是一般卷积网络的话，最后都使用全连接层，将feature map 转成固定长度的向量，然后输出种类的个数。所以在最后的时候，需要说明输出种类的个数。  
+因为这里面包含了验证的部分，验证的时候，需要输出结果的准确率，所以需要定义准确率的输出。  
+因为是训练模型，所以包括forward和backward，所以最后需要定义一个损失函数。  
 
 
 ### AlexNet-Styled architecture
 ![AlexNet.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
 
 ### 2.配置solver.prototxt
-test_iter : 一次测试，要测试多少个batch
-最好使得test_iter * batch_size = 测试样本总个数
+test_iter : 一次测试，要测试多少个batch  
+最好使得test_iter * batch_size = 测试样本总个数  
 base_lr: 0.001基础学习率（非常重要！）不能太大
 
 ### 3.执行train.sh
@@ -119,17 +119,17 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 该配置文件适用于部署，也就是用于实际场景时候的配置文件
 
 与train_val.prototxt文件的区别在于：
-* 去掉了数据层
-* 开头：不必在定义数据集的来源，但是需要定义输入数据的大小格式（在python代码中也进行了相应的修改）。
-* 中间部分：train_val.prototxt 和 deploy.prototxt中间部分一样，定义了一些卷积、激活、池化、Dropout、LRN(local response normalization)、全连接等操作。
-* 结尾：因为只有forward，所以定义的是Softmax，也就是分类器，输出最后各类的概率值。
+* 去掉了数据层  
+* 开头：不必在定义数据集的来源，但是需要定义输入数据的大小格式（在python代码中也进行了相应的修改）。  
+* 中间部分：train_val.prototxt 和 deploy.prototxt中间部分一样，定义了一些卷积、激活、池化、Dropout、LRN(local response normalization)、全连接等操作。  
+* 结尾：因为只有forward，所以定义的是Softmax，也就是分类器，输出最后各类的概率值。  
 
 ### 2.编写人脸检测代码(face_detect.py) -- 多尺度的人脸检测：
-* model 转换成全卷积
-* 多个scale
-* 前相传播，得到特征图，概率值矩阵
-* 反变换，映射到原图上的坐标值
-* NMS 非极大值抑制
+* model 转换成全卷积  
+* 多个scale  
+* 前相传播，得到特征图，概率值矩阵  
+* 反变换，映射到原图上的坐标值  
+* NMS 非极大值抑制  
 
 得到输出结果(框框好像画的有点细了，不过...依稀可辨~~~)：
 
