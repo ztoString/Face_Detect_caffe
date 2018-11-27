@@ -99,7 +99,7 @@ echo "Done."
 
 
 ### AlexNet-Styled architecture
-![AlexNet.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
+![AlexNet.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/AlexNet.jpg)
 
 ### 2.配置solver.prototxt
 test_iter : 一次测试，要测试多少个batch  
