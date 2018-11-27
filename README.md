@@ -3,7 +3,7 @@ Ubantu-18.04.1虚拟机下基于caffe和opencv实现人脸检测
 
 ## 人脸检测
 ### 目的：检测到人脸框
-![result.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/result.jpg)
+![result.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
 
 ## 一、准备数据
 ### 数据获取
@@ -99,7 +99,7 @@ echo "Done."
 
 
 ### AlexNet-Styled architecture
-![AlexNet.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/AlexNet.jpg)
+![AlexNet.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
 
 ### 2.配置solver.prototxt
 test_iter : 一次测试，要测试多少个batch
@@ -119,21 +119,21 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 该配置文件适用于部署，也就是用于实际场景时候的配置文件
 
 与train_val.prototxt文件的区别在于：
-1.* 去掉了数据层
-2.* 开头：不必在定义数据集的来源，但是需要定义输入数据的大小格式（在python代码中也进行了相应的修改）。
-3.* 中间部分：train_val.prototxt 和 deploy.prototxt中间部分一样，定义了一些卷积、激活、池化、Dropout、LRN(local response normalization)、全连接等操作。
-4.* 结尾：因为只有forward，所以定义的是Softmax，也就是分类器，输出最后各类的概率值。
+* 去掉了数据层
+* 开头：不必在定义数据集的来源，但是需要定义输入数据的大小格式（在python代码中也进行了相应的修改）。
+* 中间部分：train_val.prototxt 和 deploy.prototxt中间部分一样，定义了一些卷积、激活、池化、Dropout、LRN(local response normalization)、全连接等操作。
+* 结尾：因为只有forward，所以定义的是Softmax，也就是分类器，输出最后各类的概率值。
 
 ### 2.编写人脸检测代码(face_detect.py) -- 多尺度的人脸检测：
-1.* model 转换成全卷积
-2.* 多个scale
-3.* 前相传播，得到特征图，概率值矩阵
-4.* 反变换，映射到原图上的坐标值
-5.* NMS 非极大值抑制
+* model 转换成全卷积
+* 多个scale
+* 前相传播，得到特征图，概率值矩阵
+* 反变换，映射到原图上的坐标值
+* NMS 非极大值抑制
 
 得到输出结果(框框好像画的有点细了，不过...依稀可辨~~~)：
 
-![test.jpg](https://github.com/ztoString/Face_Detect_caffe/raw/master/test.jpg)
+![test.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
 
 
 ## 最后，还想说一个小问题，在运行程序的时候，会发现运行过程非常慢，why?
