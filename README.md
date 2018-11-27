@@ -133,7 +133,7 @@ base_lr: 0.001基础学习率（非常重要！）不能太大
 
 得到输出结果(框框好像画的有点细了，不过...依稀可辨~~~)：
 
-![test.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/result.jpg)
+![test.jpg](https://github.com/ztoString/ImageRepository/raw/master/Face_Detect_caffe/test.jpg)
 
 
 ## 最后，还想说一个小问题，在运行程序的时候，会发现运行过程非常慢，why?
