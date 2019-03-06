@@ -16,7 +16,7 @@ Ubantu-18.04.1虚拟机下基于caffe和opencv实现人脸检测
 人脸数据：路径/xxx.jpg      60，80，280，320  
 非人脸数据：只要不是人脸都可以
 
-### IOU(Intersection of Union)：
+### IOU(Intersection Over Union)：
 IOU < 0.3 : 负样本--非人脸  
 IOU > 0.7 : 正样本--人脸(提高泛化能力)  
 其他 ：抛弃  
